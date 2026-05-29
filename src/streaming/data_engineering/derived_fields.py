@@ -67,6 +67,8 @@ def compute_total_price(quantity: int, unit_price: float) -> float:
     return round(quantity * unit_price, 2)
 
 
+
+
 def compute_tax_amount(total_price: float, tax_rate: float) -> float:
     """Compute the tax amount for an order.
 
@@ -113,6 +115,52 @@ def enrich_message(
         "subtotal": total_price,
         "tax_amount": tax_amount,
         "total": total,
+    }
+
+def enrich_message2(
+    row: dict[str, Any],
+    region_lookup: dict[str, float],
+    currency_lookup: dict[str, float],
+) -> dict[str, Any]:
+    """Add all derived fields to a raw message row.
+
+    Computes total_price and tax_amount from the raw message fields
+    and the region lookup table.
+
+    As you add more derived fields,
+    extend this function to provide them as well.
+
+    Arguments:
+        row: A validated raw message row.
+        region_lookup: A dict mapping region_id to tax_rate_pct.
+
+    Returns:
+        A new dict containing all original fields plus derived fields.
+    """
+
+    quantity = int(row.get("quantity", 0))
+    unit_price = float(row.get("unit_price", 0.0))
+    region_id = str(row.get("region_id", ""))
+    currency_code = str(row.get("currency_code", ""))
+
+    tax_rate = get_tax_rate(region_id, region_lookup)
+    exchange_rate = currency_lookup.get(currency_code, 1.0)
+
+    # ✅ ORIGINAL values (no FX)
+    subtotal = compute_total_price(quantity, unit_price)
+    tax_amount = compute_tax_amount(subtotal, tax_rate)
+    total = round(subtotal + tax_amount, 2)
+
+    # ✅ CONVERTED values
+    total_in_base_currency = round(total * exchange_rate, 2)
+
+    return {
+        **row,
+        "exchange_rate": exchange_rate,
+        "subtotal": subtotal,
+        "tax_amount": tax_amount,
+        "total": total,  # original currency
+        "total_in_base_currency": total_in_base_currency,  # converted
     }
 
 

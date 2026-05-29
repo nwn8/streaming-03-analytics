@@ -133,6 +133,8 @@ CONSUMED_FIELDNAMES: Final[list[str]] = [
     *SALES_REQUIRED_FIELDS,
     "subtotal",
     "tax_amount",
+    "exchange_rate",
+    "total_in_base_currency",
     "total",
     "_kafka_key",
     "_kafka_partition",
