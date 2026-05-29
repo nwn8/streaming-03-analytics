@@ -26,20 +26,22 @@ to get these projects running on your machine.
 Describe the dataset used by your Kafka producer.
 
 Include:
-- the name of the dataset file
-- what kind of records it contains
-- which fields are included in each record
-- whether you used the original sales dataset or modified it
-- any reference datasets used for validation or enrichment
+- the name of the dataset file: Sales.csv
+- what kind of records it contains: Sales data records
+- which fields are included in each record: order_id,datetime,region_id,currency_code,product_id,unit_price,quantity,is_online,customer_id,is_new_customer,device_type,payment_method,referral_source,discount_code,customer_note
+
+- whether you used the original sales dataset or modified it: original
+- any reference datasets used for validation or enrichment:  regions.csv, currencies.csv
 
 ### Data Contract
 
 Describe the rules your messages must follow.
 
 Include:
-- which fields are required
-- which fields are optional
-- which values must match allowed values or reference data
+- which fields are required: order_id,datetime,region_id,currency_code,product_id,unit_price,quantity,is_online,customer_id,payment_method,subtotal,tax_amount,exchange_rate,total_in_base_currency,total,_kafka_key,_kafka_partition,_kafka_offset
+
+- which fields are optional: currency_name, rate_date
+- which values must match allowed values or reference data:
 - what makes a message valid or invalid
 
 ### Kafka Messages
@@ -67,45 +69,43 @@ Include:
 Describe what your consumer computes or adds.
 
 Include:
-- which derived fields are created
+- which derived fields are created:
 - what reference data is used
 - how raw fields are transformed into more useful fields
-- whether you changed or added any calculations (be specific)
+- whether you changed or added any calculations (be specific): yes the derived_fields.py includes a new method called enrich_message2 which passes in the exchange rate and calculates the total * exchange rate.
 
 ### Streaming Analytics
 
 Describe the running summaries created as messages arrive.
 
 Include:
-- what values are summarized
-- whether you tracked totals, averages, minimums, or maximums
-- how the running statistics changed as messages were consumed
+- what values are summarized:  The log files have totals, average, min and max and an exchange rate total (new)
+- how the running statistics changed as messages were consumed:  The running stats remained the same
 
 ### Experiments
 
-Describe the small technical changes you made.
+Describe the small technical changes you made.   I added a "calculated total by exchange rate" by passing in exchange rate info from currencies.csv and output to a new consumed_sales_nate.csv file
 
-Include at least one Phase 4 change and one Phase 5 application.
 
 ### Results
 
 Describe what happened when you ran the producer and consumer.
 
 Include:
-- whether messages were produced successfully
-- whether messages were consumed successfully
-- how many messages were accepted
-- how many messages were rejected or skipped
-- what appeared in the output CSV file
-- what appeared in the logs
+- whether messages were produced successfully: Yes  the producer remained the same.
+- whether messages were consumed successfully:  Yes.  cosnsumed_sales_nate.csv
+- how many messages were accepted: all 3 of them
+- how many messages were rejected or skipped: none
+- what appeared in the output CSV file:  see consumed_sales_nate.csv
+- what appeared in the logs.  Same log output as sample.  I did not change this.
 
 ### Interpretation
 
 Explain what the validation and analytics workflow showed you.
 
 Include:
-- what changed from the original example
-- what you learned about validating streaming messages
-- what you learned about enriching messages as they arrive
-- what the running summaries could tell a business or organization
-- what business intelligence was gained from the validated and processed messages
+- what changed from the original example:  Bring in Exchange rate from currencies.csv and calculate an exchange_rate_total
+- what you learned about validating streaming messages:  I like it more than batch processing.  I feel real time info can be more useful than batch processing.
+- what you learned about enriching messages as they arrive:  Processing data in real time is very useful to have accurate and up to date information for end users.
+- what the running summaries could tell a business or organization: Keeping a running total in real time would be valuable to any business.
+- what business intelligence was gained from the validated and processed messages: Processing sales data for multiple countries will need to include exchange rate totals to have an accurate sales number.
