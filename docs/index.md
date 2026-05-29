@@ -49,29 +49,29 @@ Include:
 Describe the messages sent through Kafka.
 
 Include:
-- what your producer sends
-- which Kafka topic you used
-- what message key you used, if any
-- whether/how you changed the message fields
+- what your producer sends:  Producer sends sales data
+- which Kafka topic you used: KAFKA_TOPIC=streaming-03-analytics-nate
+- what message key you used, if any: region_id
+- whether/how you changed the message fields:  Yes I added exchange rate and a calculated field of total * exchane rate
 
 ### Consumer Validation
 
-Describe how your consumer checks each message.
+Describe how your consumer checks each message.  ** I kept the validation the same from the example
 
 Include:
-- what validation checks are performed
-- what happens when a message is accepted
+- what validation checks are performed:
+- what happens when a message is accepted:
 - what happens when a message is rejected or skipped
-- how validation helps protect the results
+- how validation helps protect the results:  validation ensures the messages pass certain requirements.  
 
 ### Data Engineering and Enrichment
 
 Describe what your consumer computes or adds.
 
 Include:
-- which derived fields are created:
-- what reference data is used
-- how raw fields are transformed into more useful fields
+- which derived fields are created: total_in_base_currency
+- what reference data is used: exchange_rate_to_usd from currencies
+- how raw fields are transformed into more useful fields:   total_in_base_currency = round(total * exchange_rate, 2)
 - whether you changed or added any calculations (be specific): yes the derived_fields.py includes a new method called enrich_message2 which passes in the exchange rate and calculates the total * exchange rate.
 
 ### Streaming Analytics
